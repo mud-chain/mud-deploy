@@ -12,3 +12,4 @@ package-lock.json
 holders.json
 chain.json
 node
+pks.json
