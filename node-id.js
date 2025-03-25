@@ -27,4 +27,9 @@ export const main = async () => {
   console.log(`${address}@${ip.stdout}:26656`);
 };
 
-main();
+// main();
+
+{
+  const address = privKeyToBurrowAddres('jawXThUVHDQQflxSXHYMDDtSx5vc9XsD0Eb4zoygQvjCk1UX3ePJ3xPuTUlsJBUjEJV8hB4wfflrZ8sl+kZasQ==');
+  console.log(address);
+}
