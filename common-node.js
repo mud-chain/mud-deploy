@@ -134,7 +134,7 @@ const main = async function () {
 
     if (!fs.existsSync(daemonApp) && process.platform === 'linux') {
       console.log(`${daemonApp} executable file does not exist, try download ${daemonApp} file...`);
-      await execPromis('wget https://github.com/mudluke/mud-deploy/releases/download/v1.0.0/mudd', { cwd: curDir });
+      await execPromis('wget https://res.mud.network/mudd', { cwd: curDir });
     }
 
     if (!fs.existsSync(daemonApp)) {
@@ -212,6 +212,7 @@ const main = async function () {
 
     const startPath = path.join(dataDir, 'start.sh');
     const stopPath = path.join(dataDir, 'stop.sh');
+    const restartPath = path.join(dataDir, 'restart.sh');
     const startShell = `#!/bin/bash
 nohup ./mudd start --log_level warn --home ./mud >./mud.log 2>&1 &`;
     await fs.writeFile(startPath, startShell);
@@ -219,9 +220,21 @@ nohup ./mudd start --log_level warn --home ./mud >./mud.log 2>&1 &`;
 pid=\`lsof -iTCP:${tendermint.port['p2p.laddr']} -sTCP:LISTEN -t\`;
 if [[ -n $pid ]]; then kill -15 $pid; fi`;
     await fs.writeFile(stopPath, stopShell);
+    const restartShell = `#!/bin/bash
+./stop.sh
+for i in {1..30}; do
+  pid=\`lsof -iTCP:${tendermint.port['p2p.laddr']} -sTCP:LISTEN -t\`
+  if [[ -z "$pid" ]]; then
+    break
+  fi
+  sleep 1
+done
+./start.sh`;
+    await fs.writeFile(restartPath, restartShell);
 
     await fs.chmod(startPath, 0o777);
     await fs.chmod(stopPath, 0o777);
+    await fs.chmod(restartPath, 0o777);
 
     if (start) {
       console.log(`starting the validator node`);
