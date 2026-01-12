@@ -213,6 +213,8 @@ const main = async function () {
     const startPath = path.join(dataDir, 'start.sh');
     const stopPath = path.join(dataDir, 'stop.sh');
     const restartPath = path.join(dataDir, 'restart.sh');
+    const statusPath = path.join(dataDir, 'status.sh');
+
     const startShell = `#!/bin/bash
 nohup ./mudd start --log_level warn --home ./mud >./mud.log 2>&1 &`;
     await fs.writeFile(startPath, startShell);
@@ -233,10 +235,14 @@ for i in {1..30}; do
 done
 ./start.sh`;
     await fs.writeFile(restartPath, restartShell);
+    const statusShell = `#!/bin/bash
+curl -s http://127.0.0.1:${tendermint.port['rpc.laddr']}/status | jq`;
+    await fs.writeFile(statusPath, statusShell);
 
     await fs.chmod(startPath, 0o777);
     await fs.chmod(stopPath, 0o777);
     await fs.chmod(restartPath, 0o777);
+    await fs.chmod(statusPath, 0o777);
 
     if (start) {
       console.log(`starting the validator node`);
