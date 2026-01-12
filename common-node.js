@@ -225,6 +225,8 @@ if [[ -n $pid ]]; then kill -15 $pid; fi`;
 for i in {1..30}; do
   pid=\`lsof -iTCP:${tendermint.port['p2p.laddr']} -sTCP:LISTEN -t\`
   if [[ -z "$pid" ]]; then
+    echo "node is not running, restart node"
+    sleep 3
     break
   fi
   sleep 1
